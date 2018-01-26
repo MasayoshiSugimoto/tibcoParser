@@ -18,18 +18,16 @@ vpath %.h src
 vpath %.cpp src
 vpath %.h tests
 vpath %.cpp tests
-#Temporary folder for outputs
-BUILD = build
-vpath %.o $(BUILD)
 #Program created
 EXE = tibcoParser
-OBJECTS = tibcoParser.o
+OBJECTS = tibcoParser.o\
+					logger.o
 
 #--------------------------------------------------------------------
 # Pattern rules
 #--------------------------------------------------------------------
 
-$(BUILD)/%.o: %.cpp
+%.o: %.cpp
 	mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -41,7 +39,7 @@ $(BUILD)/%.o: %.cpp
 $(EXE): main.o $(OBJECTS)
 	$(CXX) $^ $(LDLIBS) -o $@
 
-$(BUILD)/main.o: tibcoParser.h
+main.o: tibcoParser.h
 
 #--------------------------------------------------------------------
 # Phony rules
@@ -50,4 +48,4 @@ $(BUILD)/main.o: tibcoParser.h
 .PHONY: clean
 
 clean:
-	rm -rf $(EXE) $(BUILD)
+	rm -rf $(EXE) *.o

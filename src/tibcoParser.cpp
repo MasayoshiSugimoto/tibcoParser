@@ -5,9 +5,11 @@
 namespace TibcoParser
 {
 
+Logger TibcoParser::_logger("TibcoParser");
+
 void TibcoParser::parse(const std::string& message)
 {
-  std::cout << message << "\n";
+  _logger.info(message);
 }
 
 }
