@@ -15,10 +15,12 @@ LDFLAGS     =
 
 OBJECT_DIR = build/objects
 DEPENDENCY_DIR = build/dependencies
+SOURCE_DIR = src
 
-vpath %h src
-vpath %cpp src
-vpath %o $(OBJECT_DIR)
+vpath %.h $(SOURCE_DIR)
+vpath %.cpp $(SOURCE_DIR)
+vpath %.o $(OBJECT_DIR)
+vpath %.d $(DEPENDENCY_DIR)
 
 #Executable generated
 EXE = tibcoParser
@@ -26,7 +28,7 @@ EXE = tibcoParser
 SOURCES = logger.cpp\
 					main.cpp\
 					tibcoParser.cpp\
-#OBJECTS = $(addprefix $(OBJECT_DIR), $(SOURCES:.cpp=.o))
+
 OBJECTS = $(addprefix $(OBJECT_DIR)/,$(SOURCES:.cpp=.o))
 DEPENDENCIES = $(addprefix $(DEPENDENCY_DIR)/,$(SOURCES:.cpp=.d))
 
@@ -34,14 +36,15 @@ DEPENDENCIES = $(addprefix $(DEPENDENCY_DIR)/,$(SOURCES:.cpp=.d))
 # Pattern rules
 #--------------------------------------------------------------------
 
-%.o: %.cpp %.d | $(OBJECT_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $(OBJECT_DIR)/$@
+$(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.cpp $(DEPENDENCY_DIR)/%.d | buildDir
+	@echo $^
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-%.d: %.cpp
+$(DEPENDENCY_DIR)/%.d: %.cpp | buildDir
 	@set -e;\
 	rm -f $@;\
 	$(CXX) -MM $(CXXFLAGS) $< > $@.$$$$;\
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@;\
+	sed 's,\($*\)\.o[ :]*,$(OBJECT_DIR)/\1.o $@ : ,g' < $@.$$$$ > $@;\
 	rm -f $@.$$$$;\
 
 #--------------------------------------------------------------------
@@ -52,19 +55,24 @@ DEPENDENCIES = $(addprefix $(DEPENDENCY_DIR)/,$(SOURCES:.cpp=.d))
 $(EXE): $(OBJECTS)
 	$(CXX) $^ $(LDLIBS) -o $@
 
-#include $(OBJECTS:.o=.d)
+buildDir:
+	mkdir -p $(OBJECT_DIR)
+	mkdir -p $(DEPENDENCY_DIR)
+
+objects: $(OBJECTS)
+
+dependencies: $(DEPENDENCIES)
+
+-include $(DEPENDENCIES)
 
 #--------------------------------------------------------------------
 # Phony rules
 #--------------------------------------------------------------------
 
-.PHONY: clean $(OBJECT_DIR) printVars
+.PHONY: clean printVars
 
 clean:
-	rm -rf $(EXE) *.o *.d *.d.*
-
-$(OBJECT_DIR):
-	mkdir -p $(OBJECT_DIR)
+	rm -rf $(EXE) build
 
 printVars:
 	@echo "OBJECTS="
