@@ -1,2 +1,8 @@
+#Build directory
+build/
+
+#Executable
+tibcoParser
+
 #Vim swap files
 *.swp
