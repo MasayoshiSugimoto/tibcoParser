@@ -25,9 +25,7 @@ vpath %.d $(DEPENDENCY_DIR)
 #Executable generated
 EXE = tibcoParser
 
-SOURCES = logger.cpp\
-					main.cpp\
-					tibcoParser.cpp\
+include sources.mk
 
 OBJECTS = $(addprefix $(OBJECT_DIR)/,$(SOURCES:.cpp=.o))
 DEPENDENCIES = $(addprefix $(DEPENDENCY_DIR)/,$(SOURCES:.cpp=.d))
@@ -37,9 +35,9 @@ DEPENDENCIES = $(addprefix $(DEPENDENCY_DIR)/,$(SOURCES:.cpp=.d))
 #--------------------------------------------------------------------
 
 $(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.cpp $(DEPENDENCY_DIR)/%.d | buildDir
-	@echo $^
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+#Generate rules of dependencies
 $(DEPENDENCY_DIR)/%.d: %.cpp | buildDir
 	@set -e;\
 	rm -f $@;\
@@ -58,10 +56,6 @@ $(EXE): $(OBJECTS)
 buildDir:
 	mkdir -p $(OBJECT_DIR)
 	mkdir -p $(DEPENDENCY_DIR)
-
-objects: $(OBJECTS)
-
-dependencies: $(DEPENDENCIES)
 
 -include $(DEPENDENCIES)
 
